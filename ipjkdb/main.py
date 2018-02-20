@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
 # Copyright 2016 Google Inc.
@@ -14,7 +14,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 import os
 import webapp2

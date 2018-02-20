@@ -1,4 +1,4 @@
-# -*- coding: utf-8
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------
 # Name:        module1
@@ -28,6 +28,10 @@
 #to print, use self.responce.write("Text to print")
 # to get form values, use self.request.get("tag")
 #use both of the under def post(self) on MainHandler
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 def getHeader():
     header = """
     <!DOCTYPE html>
