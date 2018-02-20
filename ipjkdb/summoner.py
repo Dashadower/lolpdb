@@ -46,7 +46,7 @@ class Summoner(ndb.Model):
 def split_utf8(s):
     n = 1500
     if len(s) <= n:
-        return s, None
+        return s, ""
     while ord(s[n]) >= 0x80 and ord(s[n]) < 0xc0:
         n -= 1
     return s[0:n], s[n:]
