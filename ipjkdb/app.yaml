@@ -20,6 +20,8 @@ handlers:
   script: search.app
 - url: /summoner
   script: summoner.app
+- url: /db
+  script: db.ap
 - url: /htmltools
   static_files: htmltools.py
   upload: htmltools.py

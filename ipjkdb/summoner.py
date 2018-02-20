@@ -81,7 +81,23 @@ class MainPage(webapp2.RequestHandler):
 
         summonerid = generate_random_id() + len(summonername)
         Summoner(SummonerName=summonername, SummonerInfo1=info1, SummonerInfo2=info2, SummonerID=summonerid).put()
-        self.redirect("../")
+        summonerdata = memcache.get("summonerdata")
+        if not summonerdata:
+            dic = {}
+            dic[summonername] = summonerinfo
+            summoners = Summoner.query().fetch(key_only=True)
+            for k in summoners:
+                info = k.get()
+                dic[info.SummonerName] = str(info.SummonerID)
+            tmplist = sorted(dic)
+            newdic = {}
+            for items in tmplist:
+                newdic[items] = dic[items]
+            memcache.add("summonerdata", newdic)
+        else:
+            summonerdata[summonername] = summonerid
+            memcache.set("summonerdata", summonerdata)
+        self.redirect("../summoner?method=add")
 
 
 
