@@ -18,20 +18,45 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-import re
+
 from google.appengine.ext import db
+from google.appengine.api import memcache
 import webapp2
 
 
 class MainPage(webapp2.RequestHandler):
 
     def post(self):
-        template = "(.+?(?=님이 ))"
-        pattern = re.compile(template)
+
         query = self.request.get("query")
-        summoners = pattern.findall(query)
-        print(summoners)
-        self.response.write(str(summoners))
+        if not query:
+            self.redirect("../")
+
+        summonerdata = memcache.get("summonerdata")
+        result = None
+        if not summonerdata:
+            dic = OrderedDict()
+            summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)
+            for k in summoners:
+                info = k.get()
+                dic[info.SummonerName] = info.SummonerID
+                if info.SummonerName == query.encode():
+                    result = info.SummonerID
+            memcache.add("summonerdata", dic)
+            if not result:
+                self.response.write("<script>alert('해당 소환사가 없습니다');document.location.href='/';</script>")
+
+            else:
+                self.redirect("../summoner?SummonerID=%d"%result)
+        else:
+            for key, val in summonerdata.iteritems():
+                if key == query.encode():
+                    result = val
+            if result:
+                self.redirect("../summoner?SummonerID=%d" % result)
+            else:
+                self.response.write("<script>alert('해당 소환사가 없습니다');document.location.href='/';</script>")
+
 
 
 

@@ -18,10 +18,15 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-from google.appengine.ext import ndb
-from summoner import Summoner
-import webapp2
 
+import htmltools
+from google.appengine.ext import ndb
+from google.appengine.api import memcache
+from summoner import Summoner
+from collections import OrderedDict
+import webapp2
+import pickle
+import logging
 
 
 fronthtml = """
@@ -29,46 +34,50 @@ fronthtml = """
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="../default.css">
+    <link rel="stylesheet" type="text/css" href="../css/default.css">
     <title>통합 패작 도감</title>
 </head>
 <body>
     <div id="page">
         <div id="header">
                 <h1>통합 패작 도감</h1>
-            
-            <div id="bar">
-                <div class="link">
-                    <a href="../">홈</a>
-                </div>
-                <div class="link">
-                    <a href="../db">도감</a>
-                </div>
+        </div>
+        <div id="bar">
+            <div class="link">
+                <a href="../">홈</a>
             </div>
-        </div>"""
-import htmltools
+            <div class="link">
+                <a href="../db">도감</a>
+            </div>
+        </div>
+"""
+
 
 class MainPage(webapp2.RequestHandler):
 
     def get(self):
 
         self.response.write(fronthtml)
+        self.response.write(htmltools.getContentTitle("<h2>패작러 목록</h2>"))
+        self.response.write('<br><div class="ContentText"><ul>')
         summonerdata = memcache.get("summonerdata")
         if not summonerdata:
-            dic = {}
-            summoners = Summoner.query().fetch(key_only=True)
+            dic = OrderedDict()
+            summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)
             for k in summoners:
                 info = k.get()
-                dic[info.SummonerName] = str(info.SummonerID)
-            tmplist = sorted(dic)
-            newdic = {}
-            for items in tmplist:
-                newdic[items] = dic[items]
-            memcache.add("summonerdata", newdic)
+                dic[info.SummonerName] = info.SummonerID
+            memcache.add("summonerdata", dic)
+
+
+            for key, value in dic.iteritems():
+                self.response.write('<li><a href="../summoner?SummonerID=%s">%s</a></li>'%(value, key))
+
         else:
             for key, value in summonerdata.iteritems():
-                self.response.write(htmltools.getContent('<a href="../summoner?SummonerID=%d">%s</a>'%(value, key)))
-                self.response.write(htmltools.getFooter())
+                self.response.write('<li><a href="../summoner?SummonerID=%s">%s</a></li>'%(value, key))
+        self.response.write('</ul></div>')
+        self.response.write(htmltools.getFooter())
 
 
 
@@ -77,5 +86,4 @@ class MainPage(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/db', MainPage)
-
 ], debug=True)

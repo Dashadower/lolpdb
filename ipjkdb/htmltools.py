@@ -38,7 +38,7 @@ def getHeader():
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="../default.css">
+    <link rel="stylesheet" type="text/css" href="../css/default.css">
     <title>통합 패작 도감</title>
 </head>
     </head>

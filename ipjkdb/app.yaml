@@ -7,21 +7,25 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 
-- url: /default.css
-  static_files: default.css
-  upload: default.css
+- url: /css/default.css
+  static_files: css/default.css
+  upload: css/default.css
   mime_type: text/css
 
 - url: /images/(.*\.(gif|png|jpg))$
   static_files: images/\1
   upload: images/.*\.(gif|png|jpg)$
 
+
+- url: /update
+  script: update.app
+  login: admin
 - url: /search
   script: search.app
 - url: /summoner
   script: summoner.app
 - url: /db
-  script: db.ap
+  script: db.app
 - url: /htmltools
   static_files: htmltools.py
   upload: htmltools.py
