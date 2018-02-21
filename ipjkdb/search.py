@@ -44,7 +44,7 @@ class MainPage(webapp2.RequestHandler):
                     result = info.SummonerID
             memcache.add("summonerdata", dic)
             if not result:
-                self.response.write("<script>alert('해당 소환사가 없습니다');document.location.href='/';</script>")
+                self.response.write("<script>alert('해당 소환사는 도감에 등록되어있지 않습니다');document.location.href='/';</script>")
 
             else:
                 self.redirect("../summoner?SummonerID=%d"%result)
@@ -55,7 +55,7 @@ class MainPage(webapp2.RequestHandler):
             if result:
                 self.redirect("../summoner?SummonerID=%d" % result)
             else:
-                self.response.write("<script>alert('해당 소환사가 없습니다');document.location.href='/';</script>")
+                self.response.write("<script>alert('해당 소환사는 도감에 등록되어있지 않습니다');document.location.href='/';</script>")
 
 
 

@@ -41,7 +41,7 @@ class MainPage(webapp2.RequestHandler):
             memcache.add("summonerdata", dic)
         else:
             memcache.set("summonerdata", dic)
-
+        self.response.write("200")
 
 
 
