@@ -19,7 +19,8 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 
-from google.appengine.ext import db
+from summoner import Summoner
+from communitydb import CommunitySummoner
 from google.appengine.api import memcache
 import webapp2
 
@@ -27,36 +28,45 @@ import webapp2
 class MainPage(webapp2.RequestHandler):
 
     def post(self):
-
         query = self.request.get("query")
         if not query:
             self.redirect("../")
-
-        summonerdata = memcache.get("summonerdata")
-        result = None
-        if not summonerdata:
-            dic = OrderedDict()
-            summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)
-            for k in summoners:
-                info = k.get()
-                dic[info.SummonerName] = info.SummonerID
-                if info.SummonerName == query.encode():
-                    result = info.SummonerID
-            memcache.add("summonerdata", dic)
-            if not result:
-                self.response.write("<script>alert('해당 소환사는 도감에 등록되어있지 않습니다');document.location.href='/';</script>")
-
-            else:
-                self.redirect("../summoner?SummonerID=%d"%result)
+        if query == "Hide on bush":
+            self.response.write(
+                "<script>alert('소환사 이름: %s\\n 모든 인간들을 패작하고 있습니다');document.location.href='/';</script>" % (
+                    query))
         else:
-            for key, val in summonerdata.iteritems():
-                if key == query.encode():
-                    result = val
-            if result:
-                self.redirect("../summoner?SummonerID=%d" % result)
+            indb = "등재안됨"
+            incdb = "등재안됨"
+            cdbhits = 0
+            summonerdata = memcache.get("summonerdata")
+            result = None
+            output = "소환사 이름: %s\\n 도감 등재여부:%s\\n커뮤니티 도감 등재여부: %s\\n커뮤니티 도감 등재 횟수: %d"
+            if not summonerdata:
+                dic = OrderedDict()
+                summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)
+                for k in summoners:
+                    info = k.get()
+                    dic[info.SummonerName] = info.SummonerID
+                    if info.SummonerName == query.encode():
+                        result = info.SummonerID
+                memcache.add("summonerdata", dic)
+                if result:
+                    indb = "등재됨"
             else:
-                self.response.write("<script>alert('해당 소환사는 도감에 등록되어있지 않습니다');document.location.href='/';</script>")
-
+                for key, val in summonerdata.iteritems():
+                    if key == query.encode():
+                        result = val
+                if result:
+                    indb = "등재됨"
+            commq = CommunitySummoner.query(CommunitySummoner.SummonerName == query.encode()).fetch()
+            if commq:
+                incdb = "등재됨"
+                commq = commq[0]
+                cdbhits = commq.SummonerHits
+            self.response.write(
+                '<script>alert("%s");document.location.href="/";</script>' % (
+                output%(query.encode(), indb, incdb, cdbhits)))
 
 
 

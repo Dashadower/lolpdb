@@ -30,10 +30,20 @@ import htmltools
 registerhtml = """
 <form method="post" action="../summoner">
     <input type="text" placeholder="소환사 이름" name="SummonerName">
+    <input type="text" placholder="등급" name="SummonerGrade">
     <textarea rows="10" cols="100" maxlength="4000" name="SummonerInfo">정보없음</textarea>
     <input type="submit" value="전송">
 </form>
 """
+midhtml = """
+<form method="POST" action="../register">
+    <input type="hidden" value="%s" name="SummonerID">
+    <input type="text" maxlength="50" placeholder="한줄정보 입력(지나친 욕설 삭제합니다)" size="50" name="comment">
+    <input type="submit" value="등록">
+</form>
+<hr>
+"""
+
 
 def generate_random_id():
     hashval = random.randint(1, 183532)
@@ -45,6 +55,9 @@ class Summoner(ndb.Model):
     SummonerInfo2 = ndb.StringProperty()
     SummonerInfo3 = ndb.StringProperty()
     SummonerID = ndb.IntegerProperty()
+    SummonerGrade = ndb.StringProperty()
+    UserComments = ndb.TextProperty()
+
 
 def split_utf8(s):
     n = 1500
@@ -73,12 +86,23 @@ class MainPage(webapp2.RequestHandler):
             query = Summoner.query(Summoner.SummonerID==int(summonerid)).get()
             if query:
                 self.response.write(htmltools.getHeader())
+
+                query.put()
                 self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
-                self.response.write(htmltools.getContent('<br><div style="white-space: pre-line;">%s%s%s</div>'%
+                self.response.write(htmltools.getContent("<br>"))
+                self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
+                self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s%s%s</div><br>'%
                                                                         (query.SummonerInfo1.encode("utf-8"),
                                                                         query.SummonerInfo2.encode("utf-8"),
                                                                          query.SummonerInfo3.encode("utf-8") if query.SummonerInfo3 else ""
                                                                         )))
+                self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
+                self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
+                self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')
+                data = query.UserComments.encode("utf-8") if query.UserComments else "정보 없음\n"
+                for comment in data.split("\n"):
+                    self.response.write("<p>%s</p>"% comment.encode())
+                self.response.write("</div></div>")
                 self.response.write(htmltools.getFooter())
             else:
                 self.redirect("../db")

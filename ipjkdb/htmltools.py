@@ -56,6 +56,9 @@ def getHeader():
                 <div class="link">
                     <a href="../db">도감</a>
                 </div>
+                <div class="link">
+                    <a href="../communitydb">커뮤니티 도감</a>
+                </div>
             </div>
       
     """

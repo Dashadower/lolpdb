@@ -2,6 +2,9 @@ runtime: python27
 api_version: 1
 threadsafe: true
 # [START handlers]
+error_handlers:
+- error_code: over_quota
+  file: over_quota.html
 handlers:
 - url: /favicon.ico
   static_files: favicon.ico
@@ -17,6 +20,10 @@ handlers:
   upload: images/.*\.(gif|png|jpg)$
 
 
+- url: /communitydb
+  script: communitydb.app
+- url: /register
+  script: register.app
 - url: /update
   script: update.app
   login: admin
