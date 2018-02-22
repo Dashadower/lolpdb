@@ -101,13 +101,13 @@ class MainPage(webapp2.RequestHandler):
                     query = query[0]
                     query.SummonerHits += 1
                     query.put()
-                    memcache.add(clientip, 1, time=600)
+                    memcache.add(clientip, 1, time=1200)
                     self.response.write("<script>alert('소환사 이름: %s\\n이미 등재되었습니다. 등재 횟수가 1만큼 증가합니다\\n 등재 횟수: %d');document.location.href='/communitydb';</script>" % (
                         query.SummonerName.encode(), query.SummonerHits))
                 else:
                     newsum = CommunitySummoner(SummonerName=summonername, SummonerID=generate_random_id(), SummonerHits=1)
                     newsum.put()
-                    memcache.add(clientip, 1, time=600)
+                    memcache.add(clientip, 1, time=1200)
                     self.response.write("<script>alert('소환사 이름: %s\\n새로 등재되었습니다.\\n등재 횟수: %d');document.location.href='/communitydb';</script>" % (
                             summonername, 1))
 

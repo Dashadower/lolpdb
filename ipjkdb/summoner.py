@@ -51,13 +51,12 @@ def generate_random_id():
     return ctime
 class Summoner(ndb.Model):
     SummonerName = ndb.StringProperty()
-    SummonerInfo1 = ndb.StringProperty()
-    SummonerInfo2 = ndb.StringProperty()
-    SummonerInfo3 = ndb.StringProperty()
+    SummonerInfo = ndb.TextProperty()
     SummonerID = ndb.IntegerProperty()
     SummonerGrade = ndb.StringProperty()
     UserComments = ndb.TextProperty()
-
+    RiotID = ndb.StringProperty()
+    SummonerTier = ndb.StringProperty()
 
 def split_utf8(s):
     n = 1500
@@ -91,11 +90,8 @@ class MainPage(webapp2.RequestHandler):
                 self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
                 self.response.write(htmltools.getContent("<br>"))
                 self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
-                self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s%s%s</div><br>'%
-                                                                        (query.SummonerInfo1.encode("utf-8"),
-                                                                        query.SummonerInfo2.encode("utf-8"),
-                                                                         query.SummonerInfo3.encode("utf-8") if query.SummonerInfo3 else ""
-                                                                        )))
+                self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s</div><br>'%
+                                                                        (query.SummonerInfo.encode("utf-8") if query.SummonerInfo else "정보 없음")))
                 self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
                 self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
                 self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')

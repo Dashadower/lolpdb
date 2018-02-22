@@ -14,7 +14,9 @@ handlers:
   static_files: css/default.css
   upload: css/default.css
   mime_type: text/css
-
+- url: /riot.txt
+  static_files: riot.txt
+  upload: riot.txt
 - url: /images/(.*\.(gif|png|jpg))$
   static_files: images/\1
   upload: images/.*\.(gif|png|jpg)$
