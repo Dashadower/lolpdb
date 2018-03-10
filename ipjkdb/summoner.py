@@ -18,7 +18,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-import os
+
 import webapp2
 import random
 import time
@@ -26,6 +26,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from collections import OrderedDict
 import htmltools
+from urllib import quote
 
 registerhtml = """
 <form method="post" action="../summoner">
@@ -44,6 +45,20 @@ midhtml = """
 <hr>
 """
 
+summonerinfohtml = """
+<table>
+    <tr>
+        <td>티어(업데이트 일자: %s)</td>
+        <td> %s</td>
+    </tr>
+    <tr>
+        <td>랭크 승률</td>
+        <td>%d%%(%s)</td>
+    </tr>
+</table>
+<button onclick="document.location.href='/riotapi?summonerid=%s'">정보 갱신하기</button>
+"""
+opggbutton = """<button onclick="document.location.href='http://www.op.gg/summoner/userName=%s'">OP.GG</button>"""
 
 def generate_random_id():
     hashval = random.randint(1, 183532)
@@ -57,7 +72,10 @@ class Summoner(ndb.Model):
     UserComments = ndb.TextProperty()
     RiotID = ndb.StringProperty()
     SummonerTier = ndb.StringProperty()
-
+    SummonerWinRate = ndb.IntegerProperty()
+    SummonerGameInfo = ndb.StringProperty()
+    APIUpdateTime = ndb.StringProperty()
+    APIUpdateTime_int = ndb.IntegerProperty()
 def split_utf8(s):
     n = 1500
     if len(s) <= n:
@@ -84,26 +102,30 @@ class MainPage(webapp2.RequestHandler):
         else:
             query = Summoner.query(Summoner.SummonerID==int(summonerid)).get()
             if query:
-                self.response.write(htmltools.getHeader())
+                if query.APIUpdateTime == None:
+                    self.redirect("../riotapi?summonerid=%s"%(summonerid))
+                else:
+                    self.response.write(htmltools.getHeader())
 
-                query.put()
-                self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
-                self.response.write(htmltools.getContent("<br>"))
-                self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
-                self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s</div><br>'%
-                                                                        (query.SummonerInfo.encode("utf-8") if query.SummonerInfo else "정보 없음")))
-                self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
-                self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
-                self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')
-                data = query.UserComments.encode("utf-8") if query.UserComments else "정보 없음\n"
-                for comment in data.split("\n"):
-                    self.response.write("<p>%s</p>"% comment.encode())
-                self.response.write("</div></div>")
-                self.response.write(htmltools.getFooter())
+                    self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
+                    self.response.write(htmltools.getContent(summonerinfohtml%(query.APIUpdateTime.encode("utf-8"),query.SummonerTier.encode("utf-8"), query.SummonerWinRate,query.SummonerGameInfo.encode(), query.SummonerID)))
+                    self.response.write(htmltools.getContent(opggbutton%(quote(query.SummonerName.encode("utf-8")))))
+                    self.response.write(htmltools.getContent("<br>"))
+                    self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
+                    self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s</div><br>'%
+                                                                            (query.SummonerInfo.encode("utf-8") if query.SummonerInfo else "정보 없음")))
+                    self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
+                    self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
+                    self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')
+                    data = query.UserComments.encode("utf-8") if query.UserComments else "정보 없음\n"
+                    for comment in data.split("\n"):
+                        self.response.write("<p>%s</p>"% comment.encode())
+                    self.response.write("</div></div>")
+                    self.response.write(htmltools.getFooter())
             else:
                 self.redirect("../db")
     def post(self):
-
+        # add new summoner
         summonername = self.request.get("SummonerName")
         summonerinfo = self.request.get("SummonerInfo")
         info1, info2, info3 = split_utf8(summonerinfo.encode("utf-8"))

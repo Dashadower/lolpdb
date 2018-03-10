@@ -46,6 +46,6 @@ class MainPage(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
-    ('/update', MainPage)
+    ('/updatecache', MainPage)
 
 ], debug=True)

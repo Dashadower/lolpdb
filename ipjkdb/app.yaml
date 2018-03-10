@@ -21,13 +21,14 @@ handlers:
   static_files: images/\1
   upload: images/.*\.(gif|png|jpg)$
 
-
+- url: /riotapi
+  script: riotapi.app
 - url: /communitydb
   script: communitydb.app
 - url: /register
   script: register.app
-- url: /update
-  script: update.app
+- url: /updatecache
+  script: updatecache.app
   login: admin
 - url: /search
   script: search.app

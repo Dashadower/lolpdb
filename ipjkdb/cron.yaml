@@ -1,4 +1,4 @@
 cron:
 - description: "Update cache"
-  url: /update
+  url: /updatecache
   schedule: every 30 minutes

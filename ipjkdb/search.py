@@ -22,6 +22,7 @@ sys.setdefaultencoding("utf-8")
 from summoner import Summoner
 from communitydb import CommunitySummoner
 from google.appengine.api import memcache
+from collections import OrderedDict
 import webapp2
 
 
