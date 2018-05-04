@@ -67,10 +67,12 @@ class MainPage(webapp2.RequestHandler):
 
                     if not riotid:
                         self.response.write(
-                            '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/db";</script>')
+                            '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/summoner?SummonerID=%s";</script>' % (
+                                summonerid))
                 except:
                     self.response.write(
-                        '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/db";</script>')
+                        '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/summoner?SummonerID=%s";</script>' % (
+                            summonerid))
                 else:
                     apidata = json.loads(urlopen(get_league_info % (riotid, api_key)).read())
                     tierinfo = " ".join(

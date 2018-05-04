@@ -102,33 +102,34 @@ class MainPage(webapp2.RequestHandler):
         else:
             query = Summoner.query(Summoner.SummonerID==int(summonerid)).get()
             if query:
-                if query.APIUpdateTime == None:
-                    self.redirect("../riotapi?summonerid=%s"%(summonerid))
-                else:
-                    self.response.write(htmltools.getHeader())
+                self.response.write(htmltools.getHeader())
 
-                    self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
-                    self.response.write(htmltools.getContent(summonerinfohtml%(query.APIUpdateTime.encode("utf-8"),query.SummonerTier.encode("utf-8"), query.SummonerWinRate,query.SummonerGameInfo.encode(), query.SummonerID)))
-                    self.response.write(htmltools.getContent(opggbutton%(quote(query.SummonerName.encode("utf-8")))))
-                    self.response.write(htmltools.getContent("<br>"))
-                    self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
-                    self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s</div><br>'%
-                                                                            (query.SummonerInfo.encode("utf-8") if query.SummonerInfo else "정보 없음")))
-                    self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
-                    self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
-                    self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')
-                    data = query.UserComments.encode("utf-8") if query.UserComments else "정보 없음\n"
-                    for comment in data.split("\n"):
-                        self.response.write("<p>%s</p>"% comment.encode())
-                    self.response.write("</div></div>")
-                    self.response.write(htmltools.getFooter())
+                self.response.write(htmltools.getContentTitle("<h2>%s</h2>"%query.SummonerName.encode("utf-8")))
+                self.response.write(htmltools.getContent(summonerinfohtml%(query.APIUpdateTime.encode("utf-8") if query.APIUpdateTime else "정보 없음",query.SummonerTier.encode("utf-8") if query.SummonerTier else "정보 없음", query.SummonerWinRate if query.SummonerWinRate else 0,query.SummonerGameInfo.encode() if query.SummonerGameInfo else "정보 없음", query.SummonerID)))
+                self.response.write(htmltools.getContent(opggbutton%(quote(query.SummonerName.encode("utf-8")))))
+                self.response.write(htmltools.getContent("<br>"))
+                self.response.write(htmltools.getContentTitle("<h4>도감에 등록된 정보</h4>"))
+                self.response.write(htmltools.getContent('<hr><div style="white-space: pre-line;">%s</div><br>'%
+                                                                        (query.SummonerInfo.encode("utf-8") if query.SummonerInfo else "정보 없음")))
+                self.response.write(htmltools.getContentTitle("<h4>추가된 한줄정보</h4>"))
+                self.response.write(htmltools.getContent(midhtml%(query.SummonerID)))
+                self.response.write('<div class="contentText"><hr><div style="white-space: pre-line;">')
+                data = query.UserComments.encode("utf-8") if query.UserComments else "정보 없음\n"
+                for comment in data.split("\n"):
+                    self.response.write("<p>%s</p>"% comment.encode())
+                self.response.write("</div></div>")
+                self.response.write(htmltools.getFooter())
             else:
                 self.redirect("../db")
     def post(self):
         # add new summoner
         summonername = self.request.get("SummonerName")
         summonerinfo = self.request.get("SummonerInfo")
-
+        summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)
+        for k in summoners:
+            info = k.get()
+            if info.SummonerName == summonername:
+                self.response.write('<script>alert("동일닉네임 DB에 존재");document.location.href="/summoner?method=add";</script>')
         summonerid = generate_random_id() + len(summonername)
         Summoner(SummonerName=summonername, SummonerInfo = summonerinfo,SummonerID=summonerid).put()
         summonerdata = memcache.get("summonerdata")
