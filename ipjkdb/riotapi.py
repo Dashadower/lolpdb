@@ -43,26 +43,56 @@ class MainPage(webapp2.RequestHandler):
 
             if query.RiotID:
                 riotid = query.RiotID
+                apidata = json.loads(urlopen(get_league_info % (riotid, api_key)).read())
+                tierinfo = " ".join([apidata[0]["tier"], apidata[0]["rank"], str(apidata[0]["leaguePoints"]) + " LP"])
+                totalgames = (apidata[0]["wins"] + apidata[0]["losses"])
+                winrate = int(float(apidata[0]["wins"]) / float(totalgames) * 100)
+                ctime = int(time.time())
+                dt = datetime.fromtimestamp(time.mktime(time.localtime()))
+                dt = dt - timedelta(hours=3)
+                friendlytime = "%d:%s:%s" % (dt.hour, str(dt.minute).rjust(2, "0"), str(dt.second).rjust(2, "0"))
+                query.SummonerTier = tierinfo
+                query.SummonerWinRate = winrate
+                query.SummonerGameInfo = "%d전 %d승 %d패" % (
+                (apidata[0]["wins"] + apidata[0]["losses"]), apidata[0]["wins"], apidata[0]["losses"])
+                query.APIUpdateTime = friendlytime
+                query.APIUpdateTime_int = ctime
+                query.put()
+                self.response.write(
+                    '<script>alert("정보를 갱신했습니다");document.location.href="/summoner?SummonerID=%s";</script>' % (
+                        summonerid))
             else:
-                riotid = str(json.loads(urlopen(get_riot_id%(quote(query.SummonerName.encode()), api_key)).read())["id"])
-                query.RiotID = riotid
-            apidata = json.loads(urlopen(get_league_info%(riotid, api_key)).read())
-            tierinfo = " ".join([apidata[0]["tier"], apidata[0]["rank"], str(apidata[0]["leaguePoints"])+" LP"])
-            totalgames = (apidata[0]["wins"]+apidata[0]["losses"])
-            winrate = int(float(apidata[0]["wins"]) / float(totalgames) * 100)
-            ctime = int(time.time())
-            dt =datetime.fromtimestamp(time.mktime(time.localtime()))
-            dt = dt - timedelta(hours=3)
-            friendlytime = "%d:%s:%s"%(dt.hour, str(dt.minute).rjust(2, "0"), str(dt.second).rjust(2, "0"))
-            query.SummonerTier = tierinfo
-            query.SummonerWinRate = winrate
-            query.SummonerGameInfo = "%d전 %d승 %d패"%((apidata[0]["wins"]+apidata[0]["losses"]), apidata[0]["wins"], apidata[0]["losses"] )
-            query.APIUpdateTime = friendlytime
-            query.APIUpdateTime_int = ctime
-            query.put()
-            self.response.write(
-                '<script>alert("정보를 갱신했습니다");document.location.href="/summoner?SummonerID=%s";</script>' % (
-                    summonerid))
+                try:
+                    riotid = str(json.loads(urlopen(get_riot_id%(quote(query.SummonerName.encode()), api_key)).read())["id"])
+
+                    if not riotid:
+                        self.response.write(
+                            '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/db";</script>')
+                except:
+                    self.response.write(
+                        '<script>alert("정보를 갱신할수 없습니다(해당 소환사가 존재하지 않습니다)");document.location.href="/db";</script>')
+                else:
+                    apidata = json.loads(urlopen(get_league_info % (riotid, api_key)).read())
+                    tierinfo = " ".join(
+                        [apidata[0]["tier"], apidata[0]["rank"], str(apidata[0]["leaguePoints"]) + " LP"])
+                    totalgames = (apidata[0]["wins"] + apidata[0]["losses"])
+                    winrate = int(float(apidata[0]["wins"]) / float(totalgames) * 100)
+                    ctime = int(time.time())
+                    dt = datetime.fromtimestamp(time.mktime(time.localtime()))
+                    dt = dt - timedelta(hours=3)
+                    friendlytime = "%d:%s:%s" % (dt.hour, str(dt.minute).rjust(2, "0"), str(dt.second).rjust(2, "0"))
+                    query.SummonerTier = tierinfo
+                    query.SummonerWinRate = winrate
+                    query.SummonerGameInfo = "%d전 %d승 %d패" % (
+                    (apidata[0]["wins"] + apidata[0]["losses"]), apidata[0]["wins"], apidata[0]["losses"])
+                    query.APIUpdateTime = friendlytime
+                    query.APIUpdateTime_int = ctime
+                    query.put()
+                    self.response.write(
+                        '<script>alert("정보를 갱신했습니다");document.location.href="/summoner?SummonerID=%s";</script>' % (
+                            summonerid))
+
+
 
 
 

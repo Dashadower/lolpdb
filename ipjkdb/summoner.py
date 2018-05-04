@@ -128,11 +128,9 @@ class MainPage(webapp2.RequestHandler):
         # add new summoner
         summonername = self.request.get("SummonerName")
         summonerinfo = self.request.get("SummonerInfo")
-        info1, info2, info3 = split_utf8(summonerinfo.encode("utf-8"))
 
         summonerid = generate_random_id() + len(summonername)
-        Summoner(SummonerName=summonername, SummonerInfo1=info1, SummonerInfo2=info2,
-                 SummonerInfo3=info3, SummonerID=summonerid).put()
+        Summoner(SummonerName=summonername, SummonerInfo = summonerinfo,SummonerID=summonerid).put()
         summonerdata = memcache.get("summonerdata")
         dic = OrderedDict()
         summoners = Summoner.query().order(Summoner.SummonerName).fetch(keys_only=True)

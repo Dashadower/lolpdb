@@ -21,6 +21,8 @@ handlers:
   static_files: images/\1
   upload: images/.*\.(gif|png|jpg)$
 
+
+
 - url: /riotapi
   script: riotapi.app
 - url: /communitydb
