@@ -50,6 +50,9 @@ fronthtml = """
                 <a href="../db">도감</a>
             </div>
             <div class="link">
+                    <a href="../analyzeusers">패작러 추적 프로젝트</a>
+                </div>
+            <div class="link">
                     <a href="../communitydb">커뮤니티 도감</a>
                 </div>
         </div>

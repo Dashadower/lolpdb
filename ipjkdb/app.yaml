@@ -1,6 +1,7 @@
 runtime: python27
 api_version: 1
 threadsafe: true
+service: default
 # [START handlers]
 error_handlers:
 - error_code: over_quota
@@ -22,7 +23,14 @@ handlers:
   upload: images/.*\.(gif|png|jpg)$
 
 
-
+- url: /admin
+  script: admin.app
+- url: /analyzeusers
+  script: analyzeusers.app
+- url: /riot_api_tools
+  static_files: riot_api_tools.py
+  upload: riot_api_tools.py
+  application_readable: true
 - url: /riotapi
   script: riotapi.app
 - url: /communitydb
@@ -50,5 +58,4 @@ handlers:
 libraries:
 - name: webapp2
   version: latest
-
 # [END libraries]

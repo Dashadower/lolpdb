@@ -1,0 +1,9 @@
+service: analyzerservice
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /analyzer
+  script: analyzer.app
+  login: admin
