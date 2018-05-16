@@ -856,6 +856,17 @@ champdata =  {
     "accountId": 205588581,
     "id": 32891296,
     "revisionDate": 1525657042000
+test match data
+{
+            "lane": "MID",
+            "gameId": 3193181414,
+            "champion": 112,
+            "platformId": "KR",
+            "timestamp": 1525423154769,
+            "queue": 430,
+            "role": "SOLO",
+            "season": 11
+}
 """
 
 def getSummonerByName(summonername):

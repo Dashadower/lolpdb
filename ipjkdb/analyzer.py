@@ -35,7 +35,9 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
         summonerdata = riot_api_tools.getSummonerByName(summonername)
         if summonerdata:
             matches = riot_api_tools.getMatchList(summonerdata["accountId"])
-            if len(matches) <= 10:
+            if not matches:
+                return self.response.set_status(200)
+            elif len(matches) <= 10:
                 res = AnalysisData.query(AnalysisData.summonername==summonername).get()
                 if res:
                     res.champdata = {}
@@ -53,6 +55,8 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                     if str(champid) not in _champdata:
                         _champdata[str(champid)] = {"kills":0.0,"assists":0.0,"deaths":0.0,"score":0.0,"wins":0.0,"totalgames":0.0,"champname":riot_api_tools.champdata[str(champid)]["name"]}
                     gdata = riot_api_tools.getMatchData(match["gameId"])
+                    if not gdata:
+                        continue
                     data = _champdata[str(champid)]
                     champscore = riot_api_tools.ParseScoreForSummoner(gdata, summonerdata["id"])
                     data["kills"] += float(int(champscore[0]))
