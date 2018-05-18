@@ -34,19 +34,22 @@ class MainPage(webapp2.RequestHandler):
         if not self.request.get("summonername"):
             self.response.write(getHeader())
             self.response.write(getContentTitle("브론즈 하위티어 패작러 추적 프로젝트"))
-            q = AnalysisData.query(AnalysisData.result == "패작유저")
-            trollcount = q.count()
-            total = AnalysisData.query().count()
+            #q = AnalysisData.query(AnalysisData.result == "패작유저")
+            #trollcount = q.count()
+            #total = AnalysisData.query().count()
+            trollcount = memcache.get("analyzedtrolls")
+            total = memcache.get("analyzedtotal")
             self.response.write(getContent("""<p>브론즈 하위티어에 서식중인 패작/양학러들을 찾기 위해 시작되었습니다. 컴퓨터가 브론즈 하위티이어에 
                                            있는 소환사들을 무작위로 선택하여 전적을 분석한후 패작유저, 패작의심유저, 클린유저로 자동 분류합니다.
                                            현재까지 소환사 <b>%d</b>명이 분석되었으며, 이중 <b>%d</b>명이 패작러로 분석되었습니다. 물론 자동으로 분석되기에 패작러가 아니지만 패작유저로 분석되고, 패작유저지만 클린유저로
-                                           분석되는 등의 오류는 충분히 발생할수 있습니다.</p>"""%(total, trollcount)))
+                                           분석되는 등의 오류는 충분히 발생할수 있습니다.</p>"""%(total if total else 0, trollcount if trollcount else 0)))
             self.response.write(getContent("<hr><p>특정 소환사가 분석되었는지 확인하실려면 아래의 검색창을 이용해주세요</p>"))
             self.response.write(getContent(searchform+"<hr>"))
             self.response.write(getContentTitle("패작러로 분석된 소환사들"))
 
             self.response.write(getContent("<h5>총 %d명</h5>"%(q.count())))
             self.response.write(getContent("<p>무작위 패작러 10명</p>"))
+            q = AnalysisData.query(AnalysisData.result == "패작유저")
             dt = q.fetch(10)
             if dt:
                 for pj in dt:

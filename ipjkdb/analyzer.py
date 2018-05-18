@@ -107,15 +107,15 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                                 params={"summonername": team}
                             )
                             idx += 1
-                totalcount = memcache.get("analyzedusers")
+                totalcount = memcache.get("analyzedtotal")
                 if not totalcount:
-                    memcache.set("analyzedusers",1)
+                    memcache.set("analyzedtotal",AnalysisData.query().count())
                 else:
-                    memcache.set("analyzedusers",totalcount+1)
-                if sys != "클린유저":
+                    memcache.set("analyzedtotal",totalcount+1)
+                if sys == "패작유저":
                     analyzedtrolls = memcache.get("analyzedtrolls")
                     if not analyzedtrolls:
-                        memcache.set("analyzedtrolls",1)
+                        memcache.set("analyzedtrolls",AnalysisData.query(AnalysisData.result == "패작유저").count())
                     else:
                         memcache.set("analyzedtrolls", analyzedtrolls+1)
 
