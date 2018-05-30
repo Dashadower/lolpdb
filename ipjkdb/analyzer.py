@@ -28,7 +28,11 @@ class AnalysisData(ndb.Model):
     champdata = ndb.PickleProperty()
     score = ndb.FloatProperty()
     result = ndb.StringProperty()
-
+class AnalysisStats(ndb.Model):
+    name = ndb.StringProperty()
+    total = ndb.IntegerProperty()
+    pj_user = ndb.IntegerProperty()
+    pj_potential_user = ndb.IntegerProperty()
 class AnalyzerTaskHandler(webapp2.RequestHandler):
     def post(self):
         summonername = self.request.get("summonername").encode()
@@ -107,17 +111,30 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                                 params={"summonername": team}
                             )
                             idx += 1
-                totalcount = memcache.get("analyzedtotal")
+                totalcount = AnalysisStats.query(AnalysisStats.name=="1차추적").get()
                 if not totalcount:
-                    memcache.set("analyzedtotal",AnalysisData.query().count())
-                else:
-                    memcache.set("analyzedtotal",totalcount+1)
-                if sys == "패작유저":
-                    analyzedtrolls = memcache.get("analyzedtrolls")
-                    if not analyzedtrolls:
-                        memcache.set("analyzedtrolls",AnalysisData.query(AnalysisData.result == "패작유저").count())
+                    totalcount = AnalysisStats()
+                    totalcount.total = AnalysisData.query().count() + 1
+                    pj_user = AnalysisData.query(AnalysisData.result == "패작유저").count()
+                    pjp_user = AnalysisData.query(AnalysisData.result == "패작 의심유저").count()
+                    if sys == "패작유저":
+                        totalcount.pj_user = pj_user + 1
                     else:
-                        memcache.set("analyzedtrolls", analyzedtrolls+1)
+                        totalcount.pj_user = pj_user
+                    if sys == "패작 의심유저":
+                        totalcount.pj_potential_user = pjp_user + 1
+                    else:
+                        totalcount.pj_potential_user = pjp_user
+                    totalcount.put()
+                else:
+                    totalcount.total = totalcount.total + 1
+                    if sys == "패작유저":
+                        totalcount.pj_user = totalcount.pj_user + 1
+                    elif sys == "패작 의심유저":
+                        totalcount.pj_potential_user = totalcount.pj_potential_user + 1
+                    totalcount.put()
+
+
 
 
 
