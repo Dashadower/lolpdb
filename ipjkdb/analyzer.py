@@ -86,9 +86,9 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                 elif numberofchamps == 0:
                     score = 0
                 res = AnalysisData.query(AnalysisData.summonername==summonername).get()
-                if score >= 220.0:
+                if score >= 500.0:
                     sys = "패작유저"
-                elif score >= 150.0:
+                elif score >= 250.0:
                     sys = "패작 의심유저"
                 else:
                     sys = "클린유저"
@@ -114,6 +114,7 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                 totalcount = AnalysisStats.query(AnalysisStats.name=="1차추적").get()
                 if not totalcount:
                     totalcount = AnalysisStats()
+                    totalcount.name = "1차추적"
                     totalcount.total = AnalysisData.query().count() + 1
                     pj_user = AnalysisData.query(AnalysisData.result == "패작유저").count()
                     pjp_user = AnalysisData.query(AnalysisData.result == "패작 의심유저").count()

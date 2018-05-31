@@ -41,6 +41,7 @@ fronthtml = """
     <div id="page">
         <div id="header">
                 <h1>통합 패작 도감</h1>
+                
         </div>
         <div id="bar">
             <div class="link">
@@ -65,7 +66,8 @@ class MainPage(webapp2.RequestHandler):
 
         self.response.write(fronthtml)
         self.response.write(htmltools.getContentTitle("<h2>패작러 목록</h2>"))
-        self.response.write('<br><div class="ContentText"><ul>')
+        self.response.write(htmltools.getContent("<h3>2018.5.31 수정</h3><p>현재 패작도감은 관리가 되지 않는 상태이며, 등재된 패작러 중 상당수는 삭제 또는 닉변된 계정 혹은 패작유저 여부가 논란에 있습니다.</p><br>"))
+        self.response.write('<div class="ContentText"><ul>')
         summonerdata = memcache.get("summonerdata")
         if not summonerdata:
             dic = OrderedDict()

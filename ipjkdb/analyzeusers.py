@@ -33,25 +33,29 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         if not self.request.get("summonername"):
             self.response.write(getHeader())
-            self.response.write(getContentTitle("브론즈 하위티어 패작러 추적 프로젝트"))
+            self.response.write(getContentTitle("<h2>1차 브론즈 하위티어 패작러 추적 프로젝트</h2>"))
             #q = AnalysisData.query(AnalysisData.result == "패작유저")
             #trollcount = q.count()
             q = AnalysisStats.query(AnalysisStats.name=="1차추적").get()
             if q:
                 total = q.total
-                trollcount = total.pj_user
+                trollcount = q.pj_user
             else:
                 total = 0
                 trollcount = 0
-            self.response.write(getContent("""<p>브론즈 하위티어에 서식중인 패작/양학러들을 찾기 위해 시작되었습니다. 컴퓨터가 브론즈 하위티이어에 
+            self.response.write(getContent("""<p>브론즈 하위티어에 서식중인 패작/양학러들을 찾기 위해 2018년 5월 20일 시작되었습니다. 컴퓨터가 브론즈 하위티이어에 
                                            있는 소환사들을 무작위로 선택하여 전적을 분석한후 패작유저, 패작의심유저, 클린유저로 자동 분류합니다.
-                                           현재까지 소환사 <b>%d</b>명이 분석되었으며, 이중 <b>%d</b>명이 패작러로 분석되었습니다. 물론 자동으로 분석되기에 패작러가 아니지만 패작유저로 분석되고, 패작유저지만 클린유저로
-                                           분석되는 등의 오류는 충분히 발생할수 있습니다.</p>"""%(total if total else 0, trollcount if trollcount else 0)))
+                                           1차 추적 프로젝트는 6월 15일 까지 계속될 계획이며, 목표 분석량은 소환사 10만 명입니다.
+                                           현재까지 소환사 <b>%d</b>명이 분석되었으며, 이중 <b>%d</b>명(총 분석인원의 %.2f%%)이 패작러로 분석되었습니다. 물론 자동으로 분석되기에 패작러가 아니지만 패작유저로 분석되고, 패작유저지만 클린유저로
+                                           분석되는 등의 오류는 충분히 발생할수 있습니다.</p>
+                                           <br><h4>2018.5.31 수정</h4><p>전적 분석공식을 상당부분 수정했습니다. 아직까지 오류는 많고, 이미 분석된 소환사들의 분석결과가 정확하지 않다는 점도 인지하고
+                                            있습니다. 또한 최근게임 팀원을 다음 분석대상으로 사용하는 특성상 현재 브론즈 5에서 벗어나 심지어 골드 상위 구간에 있는 소환사들도 분석되는
+                                             문제를 발견했습니다. 이 부분은 1차 추적이 끝난 이후 수정하도록 하겠습니다</p>"""%(total if total else 0, trollcount if trollcount else 0,(float(trollcount)/float(total))*100.0 if total else 0.0)))
             self.response.write(getContent("<hr><p>특정 소환사가 분석되었는지 확인하실려면 아래의 검색창을 이용해주세요</p>"))
             self.response.write(getContent(searchform+"<hr>"))
             self.response.write(getContentTitle("패작러로 분석된 소환사들"))
 
-            self.response.write(getContent("<h5>총 %d명</h5>"%(q.count())))
+            self.response.write(getContent("<h5>총 %d명</h5>"%(trollcount)))
             self.response.write(getContent("<p>무작위 패작러 10명</p>"))
             q = AnalysisData.query(AnalysisData.result == "패작유저")
             dt = q.fetch(10)
