@@ -922,6 +922,7 @@ def getChampionData():
         return 0
     payload = json.loads(request.read())["data"]
     for key, value in payload.items():
+        pass
 
 
 
