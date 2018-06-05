@@ -33,25 +33,31 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         if not self.request.get("summonername"):
             self.response.write(getHeader())
-            self.response.write(getContentTitle("<h2>1차 브론즈 하위티어 패작러 추적 프로젝트</h2>"))
+            self.response.write(getContentTitle("<h2>2차 브론즈 하위티어 패작러 추적 프로젝트</h2>"))
             #q = AnalysisData.query(AnalysisData.result == "패작유저")
             #trollcount = q.count()
-            q = AnalysisStats.query(AnalysisStats.name=="1차추적").get()
+            q = AnalysisStats.query(AnalysisStats.name=="2차추적").get()
             if q:
                 total = q.total
                 trollcount = q.pj_user
             else:
                 total = 0
                 trollcount = 0
-            self.response.write(getContent("""<p>브론즈 하위티어에 서식중인 패작/양학러들을 찾기 위해 2018년 5월 20일 시작되었습니다. 컴퓨터가 브론즈 하위티이어에 
-                                           있는 소환사들을 무작위로 선택하여 전적을 분석한후 패작유저, 패작의심유저, 클린유저로 자동 분류합니다.
-                                           1차 추적 프로젝트는 6월 15일 까지 계속될 계획이며, 목표 분석량은 소환사 10만 명입니다.
+            self.response.write(getContent("""<h4>패작러 추적 프로젝트 소개</h4><br><p>브론즈 하위티어에 서식중인 패작/양학러들을 찾기 위해 2018년 5월 20일 시작되었습니다. 컴퓨터가 브론즈 하위티이어에 
+                                           있는 소환사들을 무작위로 선택하여 전적을 분석한후 패작유저, 패작의심유저, 클린유저로 자동 분류합니다.</p>
+                                           
+                                           <h3>2차 추적 프로젝트</h3>
+                                           <p>2차 추적 프로젝트는 6월 6일 오전 1시부터 6월 30일 까지 계속될 계획이며, 목표 분석량은 브론즈 5 전체 인구입니다.
                                            현재까지 소환사 <b>%d</b>명이 분석되었으며, 이중 <b>%d</b>명(총 분석인원의 %.2f%%)이 패작러로 분석되었습니다. 물론 자동으로 분석되기에 패작러가 아니지만 패작유저로 분석되고, 패작유저지만 클린유저로
-                                           분석되는 등의 오류는 충분히 발생할수 있습니다.</p>
-                                           <br><h4>2018.5.31 수정</h4><p>전적 분석공식을 상당부분 수정했습니다. 아직까지 오류는 많고, 이미 분석된 소환사들의 분석결과가 정확하지 않다는 점도 인지하고
-                                            있습니다. 또한 최근게임 팀원을 다음 분석대상으로 사용하는 특성상 현재 브론즈 5에서 벗어나 심지어 골드 상위 구간에 있는 소환사들도 분석되는
-                                             문제를 발견했습니다. 이 부분은 1차 추적이 끝난 이후 수정하도록 하겠습니다</p>"""%(total if total else 0, trollcount if trollcount else 0,(float(trollcount)/float(total))*100.0 if total else 0.0)))
-            self.response.write(getContent("<hr><p>특정 소환사가 분석되었는지 확인하실려면 아래의 검색창을 이용해주세요</p>"))
+                                           분석되는 등의 오류는 충분히 발생할수 있습니다.<br>
+                                           1차에 비해 패작러 분석방법의 정확도를 훨씬 개선하였고, 분석 범위도 브론즈 5를 벗어나지 않게 보완했습니다.</p>
+                                           
+                                           <br><h4>2018.6.6 수정</h4><h3>1차 예비조사가 끝났습니다!</h3>
+                                           <br>
+                                           <p>5월 20일부터 6월 6일 자정까지 시행된 1차 패작러 조사는 일종의 시범 시행이었습니다. 
+                                           처음 시행 당시 패작러와 일반유저를 잘 구분하지 못했고, 티어 분포도 원래 목적인 브론즈 5에서 크게 벗어났습니다.
+                                           그럼에도 불구하고 15일간 소환사 <b>125710</b>명의 전적을 분석하였고, 이중 <b>617</b>명이 패작러로 판별되었습니다.</p>
+                                           """%(total, trollcount, (trollcount/total)*100)))
             self.response.write(getContent(searchform+"<hr>"))
             self.response.write(getContentTitle("패작러로 분석된 소환사들"))
 

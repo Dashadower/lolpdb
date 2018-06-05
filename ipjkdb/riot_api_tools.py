@@ -924,12 +924,41 @@ def getChampionData():
     for key, value in payload.items():
         pass
 
+def getLeagueForSummoner(summonerId):
+    """Returns league data of the specified summoner
+    format: (tier, division, leagueID)"""
+    position_request_url = "https://kr.api.riotgames.com/lol/league/v3/positions/by-summoner/%s?api_key=%s"%(str(summonerId), APIKEY)
+    request = urlopen(position_request_url)
+    if request.code != 200:
+        return None
+    else:
+        payload = json.loads(request.read())
+        for qtype in payload:
+            if qtype["queueType"] == "RANKED_SOLO_5x5":
+                return (qtype["tier"], qtype["rank"], qtype["leagueId"])
 
+        return None
+
+def ParseSummonersInLeague(leagueId):
+    """Returns a list ALL summoners in a given leagueId
+    list format: (tier, division, name)"""
+    request_url = "https://kr.api.riotgames.com/lol/league/v3/leagues/%s?api_key=%s"%(str(leagueId), APIKEY)
+    request = urlopen(request_url)
+    if request.code != 200:
+        return None
+    else:
+        summoners = []
+        payload = json.loads(request.read())
+        tier = payload["tier"]
+        for item in payload["entries"]:
+            summoners.append((tier, item["rank"], item["playerOrTeamName"]))
+
+        return summoners
 
 def getMatchData(gameId):
     """Returns raw match api data"""
     request_url = "https://kr.api.riotgames.com/lol/match/v3/matches/%s?api_key=%s"%(str(gameId), APIKEY)
-    request= urlopen(request_url)
+    request = urlopen(request_url)
     if request.code != 200:
         return 0
     payload = json.loads(request.read())
@@ -962,11 +991,11 @@ def ParseTeamsummonerNameByGame(gamedata, summonerId):
         if int(player["player"]["summonerId"]) == int(summonerId):
             pass
         else:
-            players.append(str(player["player"]["summonerName"]))
+            players.append((str(player["player"]["summonerName"]), str(player["player"]["summonerId"])))
     return players
 
 def ParseScoreForSummoner(gamedata, summonerId, championId = 0):
-    """Returns K,A,d for SummonerId, if death = 0, returns "perfect"
+    """Returns K,A,d for SummonerId
         input "json.loads"ed gamedata from getMatchData"""
     score = None
     if championId != 0:

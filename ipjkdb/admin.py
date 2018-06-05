@@ -29,13 +29,23 @@ class MainPage(webapp2.RequestHandler):
 
     def get(self):
         if self.request.get("method") == "task" and self.request.get("summonername"):
-            sname = self.request.get("summonername").encode()
-            taskqueue.add(
-                url = "/analyzer",
-                target = "analyzerservice",
-                queue_name = "summoner-analyzer",
-                params={"summonername": sname}
-            )
+            if self.request.get("flag"):
+                sname = self.request.get("summonername").encode()
+                taskqueue.add(
+                    url="/analyzer",
+                    target="analyzerservice",
+                    queue_name="summoner-analyzer",
+                    params={"summonername": sname,
+                            "flag":"true"}
+                )
+            else:
+                sname = self.request.get("summonername").encode()
+                taskqueue.add(
+                    url = "/analyzer",
+                    target = "analyzerservice",
+                    queue_name = "summoner-analyzer",
+                    params={"summonername": sname}
+                )
             self.response.write("%s has been added to analyzer_service"%(self.request.get("summonername")))
 
 
