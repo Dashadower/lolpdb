@@ -28,6 +28,8 @@ class AnalysisData(ndb.Model):
     champdata = ndb.PickleProperty()
     score = ndb.FloatProperty()
     result = ndb.StringProperty()
+    pmax = ndb.FloatProperty()
+    pmin = ndb.FloatProperty()
 class AnalysisStats(ndb.Model):
     name = ndb.StringProperty()
     total = ndb.IntegerProperty()
@@ -123,15 +125,17 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                         maxscore = max(maxscore, value["score"])  # get pMin
 
                 analysis_result = "실패"
-                if minscore == 100000000000.0 or maxscore == -100000000000.0:  # couldn't get useful data: abort
+                if minscore == 100000000000.0 or maxscore == -100000000000.0 or minscore == maxscore:  # couldn't get useful data: abort
                     if res:
                         res.champdata = {}
                         res.score = 0
                         res.result = "평가불가(평가가능 챔피언 없음)"
+                        res.pmax = maxscore
+                        res.pmin = minscore
                         res.put()
                     else:
                         res = AnalysisData(summonername=summonername, champdata={}, score=0,
-                                           result="평가불가(평가가능 챔피언 없음)")
+                                           pmax=maxscore, pmin=minscore,result="평가불가(평가가능 챔피언 없음)")
                         res.put()
                 else:
 
@@ -147,10 +151,13 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                     if res:  # record summoner analysis data
                         res.champdata = tmp_champstats
                         res.score = user_pscore
+                        res.pmax = maxscore
+                        res.pmin = minscore
                         res.result = analysis_result
                         res.put()
                     else:
-                        res = AnalysisData(summonername=summonername, champdata=tmp_champstats, score=user_pscore, result=analysis_result)
+                        res = AnalysisData(summonername=summonername, champdata=tmp_champstats, score=user_pscore,
+                                           pmax=maxscore, pmin=minscore,result=analysis_result)
                         res.put()
 
                 # record analysis statistics

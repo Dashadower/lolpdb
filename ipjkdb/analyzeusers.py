@@ -84,6 +84,7 @@ class MainPage(webapp2.RequestHandler):
                 for key, value in dt.champdata.iteritems():
                     self.response.write(getContent("<tr><td>%s</td><td>%d</td><td>%.1f</td><td>%.1f</td></tr>"%(value["champname"],value["totalgames"],value["score"],(value["wins"]/value["totalgames"])*100)))
                 self.response.write(getContent("</table>"))
+                self.response.write(getContent("<p>pMax:%.3f pMin:%.3f</p>"%(dt.pmax if dt.pmax else 0.0, dt.pmin if dt.pmin else 0.0)))
                 self.response.write(getContent("<br><h3>분석결과:%s</h3>"%(dt.result)))
                 self.response.write(getFooter())
 
