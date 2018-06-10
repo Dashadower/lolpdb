@@ -18,3 +18,5 @@ class MainPage(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/resetcache', MainPage)
+
+], debug=True)
