@@ -25,6 +25,7 @@ handlers:
 
 - url: /admin
   script: admin.app
+  login: admin
 - url: /analyzeusers
   script: analyzeusers.app
 - url: /riot_api_tools

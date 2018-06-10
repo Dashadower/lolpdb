@@ -23,6 +23,20 @@ from google.appengine.api import taskqueue
 html = """
 <html>
 <title>admin control</title>
+<body>
+    <form action="/admin" method="get">
+        소환사 이름:<br>
+        <input type="text" name="summonername">
+        <br>
+        flag:<br>
+        <input type="radio" name="flag" value="false" checked> false<br>
+        <input type="radio" name="flag" value="true"> true<br>
+        <br><br>
+        <input type="hidden" name="method" value="task">
+        <input type="submit" value="Submit">
+    </form> 
+</body>
+</html>
 """
 
 class MainPage(webapp2.RequestHandler):
@@ -47,6 +61,8 @@ class MainPage(webapp2.RequestHandler):
                     params={"summonername": sname}
                 )
             self.response.write("%s has been added to analyzer_service"%(self.request.get("summonername")))
+        else:
+            self.response.write(html)
 
 
 

@@ -192,27 +192,31 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                 #add next league summoners into analysis queue if flag is true
                 if flag == "true":
                     logging.debug("adding next league")
-                    leagueinfo = False
+                    leagueinfo = "False45654564654"
                     players = riot_api_tools.ParseTeamsummonerNameByGame(lastmatch, str(summonerdata["id"]))
                     ps = []
-                    for teamplayer in players:
-                        leagueinfo = riot_api_tools.getLeagueForSummoner(teamplayer[1])
-                        if leagueinfo:
-                            if leagueinfo[0] in TARGET_TIER and leagueinfo[1] in TARGET_DIVISION:
+                    teamplayer = players[0]
+                    leagueinfo = riot_api_tools.getLeagueForSummoner(teamplayer[1])
+                    if leagueinfo:
+                        if leagueinfo[0] in TARGET_TIER:
+                            for player in riot_api_tools.ParseSummonersInLeague(leagueinfo[2]):
+                                if player[0] in TARGET_TIER and player[1] in TARGET_DIVISION:
+                                    ps.append(player[2])
 
-
-                                for player in riot_api_tools.ParseSummonersInLeague(leagueinfo[2]):
-                                    if player[0] in TARGET_TIER and player[1] in TARGET_DIVISION:
-                                        ps.append(player[2])
+                    flag = 0
                     if ps:
                         for g in range(0, len(ps)-1):
                             taskqueue.add(
                                 url="/analyzer",
                                 target="analyzerservice",
                                 queue_name="summoner-analyzer",
-                                params={"summonername": ps[g]}
+                                params={"summonername": ps[g],
+                                        "flag": "true" if flag == 0 else "false"}
                             )
-
+                            if flag <= 3:
+                                flag += 1
+                            else:
+                                flag = 0
                         taskqueue.add(
                             url="/analyzer",
                             target="analyzerservice",

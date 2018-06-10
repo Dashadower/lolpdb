@@ -57,7 +57,7 @@ class MainPage(webapp2.RequestHandler):
                                            <p>5월 20일부터 6월 6일 자정까지 시행된 1차 패작러 조사는 일종의 시범 시행이었습니다. 
                                            처음 시행 당시 패작러와 일반유저를 잘 구분하지 못했고, 티어 분포도 원래 목적인 브론즈 5에서 크게 벗어났습니다.
                                            그럼에도 불구하고 15일간 소환사 <b>125710</b>명의 전적을 분석하였고, 이중 <b>617</b>명이 패작러로 판별되었습니다.</p>
-                                           """%(total, trollcount, (trollcount/total)*100)))
+                                           """%(total, trollcount, (float(trollcount)/float(total))*100)))
             self.response.write(getContent(searchform+"<hr>"))
             self.response.write(getContentTitle("패작러로 분석된 소환사들"))
 
