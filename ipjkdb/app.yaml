@@ -22,8 +22,12 @@ handlers:
   static_files: images/\1
   upload: images/.*\.(gif|png|jpg)$
 
+
+- url: /getapicount
+  script: getapicount.app
 - url: /resetcache
   script: resetcache.app
+  login: admin
 - url: /admin
   script: admin.app
   login: admin

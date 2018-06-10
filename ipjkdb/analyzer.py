@@ -43,6 +43,13 @@ def pScoreForChampion(totalgames, wins, kills, assists, deaths):
         score_conversion = 1.0
     return round(winrate_coversion * score_conversion, 3)
 
+def increment_memcache_var():
+    data = memcache.get("riot")
+    if data != None:
+        memcache.set("riot", data+1)
+    elif data == None:
+        memcache.add("riot", 1)
+
 ##########################
 # Constrants for use by the analyzer
 ANALYZER_PROJECT_NAME = "2차추적"
@@ -58,22 +65,15 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
         summonername = self.request.get("summonername").encode()
         flag = self.request.get("flag")
         summonerdata = riot_api_tools.getSummonerByName(summonername)  # get summoner data from query string
-        if memcache.get("riot"):
-            memcache.incr("riot")
-        else:
-            memcache.add("riot", 1)
+        increment_memcache_var()
         if summonerdata:  # summoner exists according to riot API
-            logging.debug(summonerdata)
             res = AnalysisData.query(AnalysisData.summonername == summonername).get() # check if summoner exists in DB
             if res:
                 found = True
             else:
                 found = False
             matches = riot_api_tools.getMatchList(summonerdata["accountId"])  # get a list of last 100 ranked solo games
-            if memcache.get("riot"):
-                memcache.incr("riot")
-            else:
-                memcache.add("riot", 1)
+            increment_memcache_var()
             if not matches:
                 return self.response.set_status(200)  # something went wrong while attempting to fetch games, abort
             elif len(matches) < 20:  # sample size is toooooo small
@@ -110,10 +110,7 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                                                     "champname": riot_api_tools.champdata[str(champid)]["name"]}
 
                     gdata = riot_api_tools.getMatchData(match["gameId"])  # get match game info
-                    if memcache.get("riot"):
-                        memcache.incr("riot")
-                    else:
-                        memcache.add("riot", 1)
+                    increment_memcache_var()
                     if not gdata:  # failed fetch: just pass
                         continue
                     lastmatch = gdata
@@ -141,12 +138,12 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                         res.champdata = {}
                         res.score = 0
                         res.result = "평가불가(평가가능 챔피언 없음)"
-                        res.pmax = maxscore
-                        res.pmin = minscore
+                        res.pmax = 0
+                        res.pmin = 0
                         res.put()
                     else:
                         res = AnalysisData(summonername=summonername, champdata={}, score=0,
-                                           pmax=maxscore, pmin=minscore,result="평가불가(평가가능 챔피언 없음)")
+                                           pmax=0, pmin=0,result="평가불가(평가가능 챔피언 없음)")
                         res.put()
                 else:
 
@@ -205,17 +202,11 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                     logging.debug("adding next league")
                     leagueinfo = "False45654564654"
                     players = riot_api_tools.ParseTeamsummonerNameByGame(lastmatch, str(summonerdata["id"]))
-                    if memcache.get("riot"):
-                        memcache.incr("riot")
-                    else:
-                        memcache.add("riot", 1)
+                    increment_memcache_var()
                     ps = []
                     teamplayer = players[0]
                     leagueinfo = riot_api_tools.getLeagueForSummoner(teamplayer[1])
-                    if memcache.get("riot"):
-                        memcache.incr("riot")
-                    else:
-                        memcache.add("riot", 1)
+                    increment_memcache_var()
                     if leagueinfo:
                         if leagueinfo[0] in TARGET_TIER:
                             for player in riot_api_tools.ParseSummonersInLeague(leagueinfo[2]):
@@ -232,7 +223,7 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                                 params={"summonername": ps[g],
                                         "flag": "true" if flag == 0 else "false"}
                             )
-                            if flag <= 3:
+                            if flag <= 5:
                                 flag += 1
                             else:
                                 flag = 0
@@ -243,21 +234,6 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                             params={"summonername": ps[len(ps)-1],
                                     "flag": "true"}
                         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

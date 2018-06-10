@@ -21,23 +21,38 @@ import webapp2
 from google.appengine.api import taskqueue, memcache
 html = """
 <html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <title>admin control</title>
+</head>
 <body>
-    <form action="/admin" method="get">
-        소환사 이름:<br>
-        <input type="text" name="summonername">
-        <br>
-        flag:<br>
-        <input type="radio" name="flag" value="false" checked> false<br>
-        <input type="radio" name="flag" value="true"> true<br>
-        <br><br>
-        <input type="hidden" name="method" value="task">
-        <input type="submit" value="Submit">
-    </form> 
-<br><br>
-<h3>summoner-analyzer queue stats</h3>
+<h1>analyzer admin page</h1>
+<hr>
+<h3>Add new summoner to Push Queue</h3>
+<form action="/admin" method="get">
+    소환사 이름:<br>
+    <input type="text" name="summonername">
+    <br>
+    flag:<br>
+    <input type="radio" name="flag" value="false" checked> false<br>
+    <input type="radio" name="flag" value="true"> true<br>
+    <br><br>
+    <input type="hidden" name="method" value="task">
+    <input type="submit" value="Submit">
+</form> 
+<hr>
+<h3>summoner-analyzer queue stats</h3><br>
 """
 endhtml = """
+<script type="text/javascript">
+timer = setInterval(function() 
+    { $.ajax( "getapicount" )
+           .done(function(data) {
+                 $("#int").text(data);
+                 console.log(data);
+           })
+    }, 2000);
+</script>
 </body>
 </html>
 """
@@ -67,11 +82,12 @@ class MainPage(webapp2.RequestHandler):
         else:
             statsList = taskqueue.QueueStatistics.fetch(taskqueue.Queue("summoner-analyzer"))
             self.response.write(html)
-            self.response.write(str(statsList))
+            self.response.write("<p>"+str(statsList)+"</p><hr>")
             apistats = memcache.get(key="riot")
             if apistats:
-                self.response.write("API calls in the last minute: %d"%(apistats))
-
+                self.response.write('<br><p>API calls in the last minute: <div id="int">%d calls</div></p>'%(apistats))
+            else:
+                self.response.write('<br><p>API calls in the last minute: <div id="int">No data available(check memcache)</div></p>')
             self.response.write(endhtml)
 
 
