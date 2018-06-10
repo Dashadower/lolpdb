@@ -18,8 +18,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 import webapp2
-from google.appengine.api import taskqueue
-
+from google.appengine.api import taskqueue, memcache
 html = """
 <html>
 <title>admin control</title>
@@ -35,6 +34,10 @@ html = """
         <input type="hidden" name="method" value="task">
         <input type="submit" value="Submit">
     </form> 
+<br><br>
+<h3>summoner-analyzer queue stats</h3>
+"""
+endhtml = """
 </body>
 </html>
 """
@@ -62,7 +65,14 @@ class MainPage(webapp2.RequestHandler):
                 )
             self.response.write("%s has been added to analyzer_service"%(self.request.get("summonername")))
         else:
+            statsList = taskqueue.QueueStatistics.fetch(taskqueue.Queue("summoner-analyzer"))
             self.response.write(html)
+            self.response.write(str(statsList))
+            apistats = memcache.get(key="riot")
+            if apistats:
+                self.response.write("API calls in the last minute: %d"%(apistats))
+
+            self.response.write(endhtml)
 
 
 

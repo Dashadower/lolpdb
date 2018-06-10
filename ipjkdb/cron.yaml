@@ -2,3 +2,6 @@ cron:
 - description: "Update cache"
   url: /updatecache
   schedule: every 30 minutes
+- description: "Reset api memcache"
+  url: /resetcache
+  schedule: every 1 minutes

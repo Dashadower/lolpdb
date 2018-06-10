@@ -58,15 +58,22 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
         summonername = self.request.get("summonername").encode()
         flag = self.request.get("flag")
         summonerdata = riot_api_tools.getSummonerByName(summonername)  # get summoner data from query string
-
+        if memcache.get("riot"):
+            memcache.incr("riot")
+        else:
+            memcache.add("riot", 1)
         if summonerdata:  # summoner exists according to riot API
+            logging.debug(summonerdata)
             res = AnalysisData.query(AnalysisData.summonername == summonername).get() # check if summoner exists in DB
             if res:
                 found = True
             else:
                 found = False
             matches = riot_api_tools.getMatchList(summonerdata["accountId"])  # get a list of last 100 ranked solo games
-
+            if memcache.get("riot"):
+                memcache.incr("riot")
+            else:
+                memcache.add("riot", 1)
             if not matches:
                 return self.response.set_status(200)  # something went wrong while attempting to fetch games, abort
             elif len(matches) < 20:  # sample size is toooooo small
@@ -103,6 +110,10 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                                                     "champname": riot_api_tools.champdata[str(champid)]["name"]}
 
                     gdata = riot_api_tools.getMatchData(match["gameId"])  # get match game info
+                    if memcache.get("riot"):
+                        memcache.incr("riot")
+                    else:
+                        memcache.add("riot", 1)
                     if not gdata:  # failed fetch: just pass
                         continue
                     lastmatch = gdata
@@ -194,9 +205,17 @@ class AnalyzerTaskHandler(webapp2.RequestHandler):
                     logging.debug("adding next league")
                     leagueinfo = "False45654564654"
                     players = riot_api_tools.ParseTeamsummonerNameByGame(lastmatch, str(summonerdata["id"]))
+                    if memcache.get("riot"):
+                        memcache.incr("riot")
+                    else:
+                        memcache.add("riot", 1)
                     ps = []
                     teamplayer = players[0]
                     leagueinfo = riot_api_tools.getLeagueForSummoner(teamplayer[1])
+                    if memcache.get("riot"):
+                        memcache.incr("riot")
+                    else:
+                        memcache.add("riot", 1)
                     if leagueinfo:
                         if leagueinfo[0] in TARGET_TIER:
                             for player in riot_api_tools.ParseSummonersInLeague(leagueinfo[2]):
