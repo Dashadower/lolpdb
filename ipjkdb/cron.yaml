@@ -5,3 +5,6 @@ cron:
 - description: "Reset api memcache"
   url: /resetcache
   schedule: every 1 minutes
+- description: "OP.GG automatic record"
+  url: /opggrecord
+  schedule: every 5 minutes

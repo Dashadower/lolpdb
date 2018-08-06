@@ -2,6 +2,11 @@ runtime: python27
 api_version: 1
 threadsafe: true
 service: default
+
+env_variables:
+  GAE_USE_SOCKETS_HTTPLIB : 'true'
+
+
 # [START handlers]
 error_handlers:
 - error_code: over_quota
@@ -39,6 +44,9 @@ handlers:
   application_readable: true
 - url: /riotapi
   script: riotapi.app
+- url: /opggrecord
+  script: opggrecord.app
+  login: admin
 - url: /communitydb
   script: communitydb.app
 - url: /register
@@ -64,4 +72,8 @@ handlers:
 libraries:
 - name: webapp2
   version: latest
+- name: ssl
+  version: "2.7.11"
+- name: pycrypto
+  version: "2.6"
 # [END libraries]

@@ -41,6 +41,12 @@ html = """
     <input type="submit" value="Submit">
 </form> 
 <hr>
+<form action="/opggrecord" method="get">
+    opgg record - 소환사 이름:<br>
+    <input type="text" name="summonername">
+    <input type="submit" value="Submit">
+</form> 
+<hr>
 <h3>summoner-analyzer queue stats</h3><br>
 """
 endhtml = """

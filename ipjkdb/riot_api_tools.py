@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Please note: all parameters returned passed around by the below functions are undefined type. Please use int or str to validate
-from urllib import urlopen, quote  # python2
+from urllib2 import urlopen, quote, Request, build_opener  # python2
 #from urllib.request import urlopen, quote  # python3
-import json, time, collections
+import json, time, collections, requests, logging
 
 APIKEY = "RGAPI-eadde91c-c083-4d83-8d4e-e15d3b524a10"
 
@@ -875,6 +875,33 @@ test match data
 }
 """
 
+def getLiveGameDataBySummonerID(summonerID):
+    request_url = "https://kr.api.riotgames.com/lol/spectator/v3/active-games/by-summoner/%s?api_key=%s"%(summonerID, APIKEY)
+    request = urlopen(request_url)
+    if request.code != 200:
+        return 0
+    payload = json.loads(request.read())
+    return payload
+
+def opgg_recordGame_gameId(gameID, summonerName):
+    request_url = "http://www.op.gg/summoner/ajax/requestRecording/gameId=%s"%(gameID)
+    logging.debug(request_url)
+    headers = requests.utils.default_headers()
+    headers.update(
+        {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
+            "Host": "www.op.gg",
+            "Accept-Language": "en-US,en;q=0.9"
+        })
+    logging.debug(str(headers))
+    session = requests.Session()
+    r1 = session.get("http://www.op.gg/summoner/userName=%s"%(summonerName), headers=headers)
+    r2 = session.get(request_url,cookies=r1.cookies, headers=headers)
+    logging.debug(r1.status_code)
+    logging.debug(r2.status_code)
+    return (r2.status_code, r2.content.decode())
+    #request = urlopen(request_url)
+    #return (request.code, request.read().decode())
 def getSummonerByName(summonername):
     """Returns dict of data returned by riot API
     int id
@@ -1013,6 +1040,8 @@ def ParseScoreForSummoner(gamedata, summonerId, championId = 0):
             if player["participantId"] == participantId:
                 score = (int(player["stats"]["kills"]),int(player["stats"]["assists"]),int(player["stats"]["deaths"]))
     return score
+
+#print(getLiveGameDataBySummonerID(getSummonerByName("서초구서밋104동")["id"]))
 """start = time.time()
 summonerdata = getSummonerByName("이렐캐리누누던짐")
 #champdata = getChampionData()

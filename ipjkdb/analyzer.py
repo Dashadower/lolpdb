@@ -18,7 +18,7 @@ import sys, logging
 reload(sys)
 sys.setdefaultencoding("utf-8")
 import webapp2
-from google.appengine.ext import ndb
+from google.appengine.ext import ndb    # ignore these errors, they are fine for deployment
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 import riot_api_tools
